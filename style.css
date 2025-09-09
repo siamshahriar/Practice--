@@ -1,0 +1,190 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f7f9fa;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+header {
+    background: #1a2233;
+    color: #fff;
+    padding: 0;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    min-height: 48px;
+}
+.logo-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px 10px 18px;
+}
+.logo {
+    width: 28px;
+    height: 28px;
+}
+.header-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+}
+.header-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.header-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+.title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0;
+    text-align: left;
+}
+#header-time {
+    font-size: 1rem;
+    color: #fff;
+    min-width: 110px;
+    text-align: center;
+}
+#theme-toggle {
+    font-size: 0.95rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: none;
+    background: #0a7cff;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#theme-toggle:hover {
+    background: #005bb5;
+}
+.navbar {
+    position: sticky;
+    top: 0;
+    background: #232d43;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    z-index: 100;
+    min-height: 36px;
+}
+#nav-list {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    margin: 0;
+    padding: 0 0 0 0;
+    height: 36px;
+    align-items: center;
+}
+.nav-item {
+    color: #fff;
+    font-size: 0.98rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 20px;
+    transition: background 0.2s, color 0.2s;
+    position: relative;
+}
+.nav-item:hover, .nav-item.active {
+    background: #0a7cff;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(10,124,255,0.10);
+}
+main {
+    padding: 40px 20px 80px 20px;
+    max-width: 700px;
+    margin: 0 auto;
+    min-height: 350px;
+}
+#players-list {
+    list-style: none;
+    padding: 0;
+}
+#players-list li {
+    background: #e2e2e2;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    transition: background 0.2s;
+}
+#players-list li:hover {
+    background: #d0e7ff;
+}
+footer {
+    background: #1a2233;
+    color: #fff;
+    text-align: center;
+    padding: 7px 0;
+    font-size: 0.93rem;
+    letter-spacing: 1px;
+    margin-top: 30px;
+}
+.dark-theme {
+    background: #181c24;
+    color: #fff;
+}
+.dark-theme header,
+.dark-theme footer {
+    background: #111522;
+}
+.dark-theme .navbar {
+    background: #181c24;
+}
+.dark-theme #players-list li {
+    background: #232d43;
+    color: #fff;
+}
+@media (max-width: 600px) {
+    .logo-title {
+        flex-direction: column;
+        gap: 3px;
+        padding: 7px 5px 7px 5px;
+    }
+    .header-flex {
+        flex-direction: column;
+        gap: 4px;
+        padding: 7px 5px;
+    }
+    .header-left, .header-center, .header-right {
+        flex: unset;
+        width: 100%;
+        justify-content: center;
+    }
+    .title {
+        font-size: 0.98rem;
+        text-align: center;
+    }
+    #header-time {
+        font-size: 0.92rem;
+    }
+    #nav-list {
+        gap: 6px;
+        height: 28px;
+    }
+    .nav-item {
+        font-size: 0.85rem;
+        padding: 3px 7px;
+    }
+    main {
+        padding: 12px 2px 40px 2px;
+    }
+    footer {
+        padding: 5px 0;
+        font-size: 0.85rem;
+    }
+}
