@@ -81,12 +81,6 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     homeSection.appendChild(form);
 
-    // Load players from localStorage if available
-    let savedPlayers = localStorage.getItem('players');
-    if (savedPlayers) {
-        players.splice(0, players.length, ...JSON.parse(savedPlayers));
-    }
-
     // Form submit event
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -94,7 +88,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = input.value.trim();
         if (name) {
             players.push(name);
-            localStorage.setItem('players', JSON.stringify(players));
             input.value = '';
             alert(`Player ${name} added!`);
         }
@@ -106,11 +99,10 @@ playersList.addEventListener('click', function(e) {
     if (e.target.tagName === 'LI') {
         const name = e.target.innerText;
         if (confirm(`Remove ${name}?`)) {
-            // Remove from array and localStorage
+            // Remove from array
             const idx = players.indexOf(name);
             if (idx > -1) {
                 players.splice(idx, 1);
-                localStorage.setItem('players', JSON.stringify(players));
             }
             // Remove from DOM
             playersList.removeChild(e.target);
