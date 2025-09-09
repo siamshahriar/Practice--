@@ -133,8 +133,6 @@ function updateTime() {
     const now = new Date();
     if (headerTime) {
         headerTime.innerText = `${now.toLocaleTimeString()}`;
-    } else if (timeSpan) {
-        timeSpan.innerText = `Time: ${now.toLocaleTimeString()}`;
     }
 }
 updateTime();
