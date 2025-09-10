@@ -28,9 +28,9 @@ function scopeExample() {
     console.log(z); // const scoped
 }
 scopeExample();
-// console.log(x); // Error: x is not defined
-// console.log(y); // Error: y is not defined
-// console.log(z); // Error: z is not defined
+console.log(x); // Error: x is not defined
+console.log(y); // Error: y is not defined
+console.log(z); // Error: z is not defined
 
 // Block scope
 if (true) {
@@ -42,13 +42,13 @@ if (true) {
     console.log(blockConst); // I am const
 }
 console.log(blockVar); // I am var
-// console.log(blockLet); // Error: blockLet is not defined
-// console.log(blockConst); // Error: blockConst is not defined
+console.log(blockLet); // Error: blockLet is not defined
+console.log(blockConst); // Error: blockConst is not defined
 
 // 4. Variable Hoisting
 console.log(hoistedVar); // undefined (var is hoisted)
 var hoistedVar = 'Hoisted!';
-// console.log(hoistedLet); // Error: Cannot access 'hoistedLet' before initialization
+console.log(hoistedLet); // Error: Cannot access 'hoistedLet' before initialization
 let hoistedLet = 'Not hoisted!';
 
 // 5. Global Variables
@@ -60,7 +60,7 @@ console.log(globalVar2); // I am also global
 // 6. Constants
 const PI = 3.14159;
 console.log(PI); // 3.14159
-// PI = 3; // Error: Assignment to constant variable
+PI = 3; // Error: Assignment to constant variable
 
 // 7. Primitive Data Types
 let str = "Hello"; // string
@@ -112,6 +112,7 @@ console.log(Number('abc')); // NaN
 // Array literals
 let arr = [1, 2, 3];
 console.log(arr); // [1, 2, 3]
+//will do a seperate Repo for alsmot every array methods
 
 // Boolean literals
 let t = true;
@@ -141,12 +142,14 @@ console.log(enhancedObj.greet()); // Hello, Nasif
 // RegExp literals
 let regex = /abc/i;
 console.log(regex.test("ABC")); // true
+//will do a seperate Repo for almost every regex methods
 
 // String literals
 let s = 'single';
 let d = "double";
 let backtickStr = `backtick`;
 console.log(s, d, backtickStr); // single double backtick
+//will do a seperate Repo for almost every string methods
 
 // Template literals
 
@@ -154,12 +157,34 @@ let user = 'Mahim';
 let greet = `Hello, ${user}!`;
 console.log(greet); // Hello, Mahim!
 
-// Tagged templates
-function tag(strings, value) {
-    return strings[0] + value.toUpperCase();
+// Tagged templates (easy beginner examples)
+// Example 1: Simple tag that adds stars around a word
+function starTag(strings, word) {
+    return strings[0] + '***' + word + '***' + strings[1];
 }
-let tagged = tag`Hi, ${user}`;
-console.log(tagged); // Hi, MAHIM
+let easy1 = starTag`Hello, ${'Siam'}!`;
+console.log(easy1); // Hello, ***Siam***!
+
+// Example 2: Tag that makes a word uppercase
+function upperTag(strings, word) {
+    return strings[0] + word.toUpperCase() + strings[1];
+}
+let easy2 = upperTag`Welcome, ${'Nasif'}!`;
+console.log(easy2); // Welcome, NASIF!
+
+// Example 3: Tag that repeats a word
+function repeatTag(strings, word) {
+    return strings[0] + word + word + strings[1];
+}
+let easy3 = repeatTag`Bye, ${'Mahim'}!`;
+console.log(easy3); // Bye, MahimMahim!
+
+// Example 4: Tag that adds a smiley after a name
+function smileyTag(strings, name) {
+    return strings[0] + name + ' 😊' + strings[1];
+}
+let easy4 = smileyTag`Good job, ${'Fahad'}!`;
+console.log(easy4); // Good job, Fahad 😊!
 
 // Using special characters in strings
 let special = "Line1\nLine2\tTabbed";
@@ -287,28 +312,7 @@ try {
 }
 
 // try...catch...finally
-function getMonthName(mo) {
-    mo--;
-    const months = [
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-    ];
-    if (!months[mo]) {
-        throw new Error("Invalid month code");
-    }
-    return months[mo];
-}
-
-let myMonth = 13;
-let monthName;
-try {
-    monthName = getMonthName(myMonth);
-} catch (e) {
-    monthName = "unknown";
-    console.error(e.name); // Error
-    console.error(e.message); // Invalid month code
-}
-console.log(monthName); // unknown
+//will do a seperate Repo for try catch finally
 
 // finally block always runs
 function testFinally() {
