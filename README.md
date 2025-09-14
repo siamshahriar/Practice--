@@ -17,4 +17,3 @@ Each method section in `js-array-methods-practice.js` contains 10 practical, rea
 
 ---
 
-Feel free to add more methods or examples as you continue your practice!
