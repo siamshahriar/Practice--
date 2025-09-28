@@ -129,4 +129,130 @@ fetchUser(1)
   });
 
 
-  
+  //using mock API
+
+const userId = 1;
+
+fetch(`https://jsonplaceholder.typicode.com/users/${userId}`)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(user => {
+    console.log(`User found: ${user.name} (Email: ${user.email})`); // User found: Leanne Graham (Email: leanne@example.com)
+    return fetch(`https://jsonplaceholder.typicode.com/posts?userId=${user.id}`);
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(posts => {
+    console.log(`Successfully fetched ${posts.length} posts.`); // Successfully fetched 10 posts.
+    console.log('Title of the first post:', posts[0].title); // Title of the first post: sunt aut facere repellat provident occaecati excepturi optio reprehenderit
+  })
+  .catch(error => {
+    console.error('An error occurred in the promise chain:', error);
+  });
+
+
+// unhandledrejection
+
+window.addEventListener('unhandledrejection', function(event) {
+  console.error('Unhandled promise rejection:', event.reason);
+});
+
+
+function riskyOperation() {
+  return new Promise((resolve, reject) => {
+    console.log("Starting a risky operation...");
+    setTimeout(() => {
+      reject(new Error("Something went wrong!"));
+    }, 1000);
+  });
+}
+riskyOperation();
+
+// Output: Unhandled promise rejection: Error: Something went wrong!
+
+// Promise.allSettled()
+
+const successfulPromise = new Promise(resolve => setTimeout(resolve, 500, 'Success!'));
+const failingPromise = new Promise((resolve, reject) => setTimeout(reject, 800, 'Failure!'));
+const anotherSuccess = Promise.resolve('Another success!');
+
+Promise.allSettled([successfulPromise, failingPromise, anotherSuccess])
+  .then(results => {
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        console.log(`Promise ${index + 1} fulfilled with value: "${result.value}"`); // 
+      } else {
+        console.log(`Promise ${index + 1} rejected with reason: "${result.reason}"`);
+      }
+    });
+  });
+
+
+// Promise.any()
+
+const slowSuccess = new Promise(resolve => setTimeout(resolve, 1000, 'Slow success'));
+const quickSuccess = new Promise(resolve => setTimeout(resolve, 300, 'Quick success'));
+const immediateFailure = Promise.reject('Immediate failure');
+
+Promise.any([slowSuccess, quickSuccess, immediateFailure])
+  .then(firstResult => {
+    console.log("The first successful result is:", `"${firstResult}"`);
+  })
+  .catch(error => {
+    console.error("This part should not run for the success case:", error);
+  });
+
+
+const failure1 = new Promise((resolve, reject) => setTimeout(reject, 100, 'First failure'));
+const failure2 = new Promise((resolve, reject) => setTimeout(reject, 400, 'Second failure'));
+
+Promise.any([failure1, failure2])
+  .then(result => {
+    console.log("This part should not run for the failure case:", result);
+  })
+  .catch(error => {
+    console.error("Error Type:", error.name);
+    console.error("Aggregate Errors:", error.errors);
+  });
+
+  // using async and await
+
+  async function fetchUserAndPosts(userId) {
+  try {
+    const userResponse = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`);
+
+    if (!userResponse.ok) {
+      throw new Error(`HTTP error! Status: ${userResponse.status}`);
+    }
+
+    const user = await userResponse.json();
+    console.log(`User found: ${user.name} (Email: ${user.email})`);
+
+    const postsResponse = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${user.id}`);
+
+    if (!postsResponse.ok) {
+      throw new Error(`HTTP error! Status: ${postsResponse.status}`);
+    }
+
+    const posts = await postsResponse.json();
+    console.log(`Successfully fetched ${posts.length} posts.`);
+    console.log('Title of the first post:', posts[0].title);
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+fetchUserAndPosts(1);
+
+
+
+
