@@ -253,6 +253,190 @@ Promise.any([failure1, failure2])
 
 fetchUserAndPosts(1);
 
+// async function-
+
+
+const originalPromise = new Promise(resolve => resolve("Value from the original Promise"));
+
+function basicReturn() {
+  return Promise.resolve(originalPromise); //it wont create any new Promise
+}
+
+// async function always creates a new Promise and wraps the inner value with that new Promise.
+async function asyncReturn() {
+  return originalPromise;
+}
+
+const basicResult = basicReturn();
+const asyncResult = asyncReturn();
+
+console.log("Are originalPromise and basicReturn the same object?", originalPromise === basicResult); // Output: true
+console.log("Are originalPromise and asyncReturn the same object?", originalPromise === asyncResult); // Output: false
+
+
+//////
+
+//step by step process with async await
+
+const delay = (ms, message) => {
+  return new Promise(resolve => setTimeout(() => resolve(message), ms));
+};
+
+async function stepByStepProcess() {
+  console.log("Process started.");
+
+  const step1 = await delay(1500, "Step 1 completed");
+  console.log(step1);
+
+  const step2 = await delay(1000, "Step 2 completed");
+  console.log(step2);
+
+  console.log("Process finished successfully!");
+}
+
+stepByStepProcess();
+
+// output -->
+// Process started.
+// Step 1 completed
+// Step 2 completed
+// Process finished successfully!
 
 
 
+const slowSuccessTask = () => {
+  console.log("slow task 2 seconds started...");
+  return new Promise(resolve => setTimeout(() => resolve("Slow task succeeded!"), 2000));
+};
+
+const fastFailure = () => {
+  console.log("Fast task 0.5 seconds started...");
+  return new Promise((_, reject) => setTimeout(() => reject(new Error("I failed quickly!")), 500));
+};
+
+// --- Incorrect approach ---
+async function problematicConcurrentAwait() {
+  const slowPromise = slowSuccessTask();
+  const fastPromise = fastFailure();
+
+  try {
+    const result1 = await slowPromise;
+    console.log(result1);
+    
+    const result2 = await fastPromise;
+    console.log(result2);
+  } catch (error) {
+    console.error("Error caught:", error.message);
+  }
+}
+
+problematicConcurrentAwait().catch(err => {}); // Will show unhandled rejection error in browser
+
+// --- Correct approach ---
+async function correctConcurrentAwait() {
+  const slowPromise = slowSuccessTask();
+  const fastPromise = fastFailure();
+
+  try {
+    await Promise.all([slowPromise, fastPromise]);
+  } catch (error) {
+    console.error("Error caught:", error.message);
+  }
+}
+
+setTimeout(correctConcurrentAwait, 3000);
+
+
+ // ----------------
+function resolveAfter2Seconds() {
+  console.log("starting slow promise");
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("slow");
+      console.log("slow promise is done");
+    }, 2000);
+  });
+}
+
+function resolveAfter1Second() {
+  console.log("starting fast promise");
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("fast");
+      console.log("fast promise is done");
+    }, 1000);
+  });
+}
+
+async function sequentialStart() {
+  console.log("== sequentialStart starts ==");
+
+  // 1. Start a timer, log after it's done
+  const slow = resolveAfter2Seconds();
+  console.log(await slow);
+
+  // 2. Start the next timer after waiting for the previous one
+  const fast = resolveAfter1Second();
+  console.log(await fast);
+
+  console.log("== sequentialStart done ==");
+}
+
+async function sequentialWait() {
+  console.log("== sequentialWait starts ==");
+
+  // 1. Start two timers without waiting for each other
+  const slow = resolveAfter2Seconds();
+  const fast = resolveAfter1Second();
+
+  // 2. Wait for the slow timer to complete, and then log the result
+  console.log(await slow);
+  // 3. Wait for the fast timer to complete, and then log the result
+  console.log(await fast);
+
+  console.log("== sequentialWait done ==");
+}
+
+async function concurrent1() {
+  console.log("== concurrent1 starts ==");
+
+  // 1. Start two timers concurrently and wait for both to complete
+  const results = await Promise.all([
+    resolveAfter2Seconds(),
+    resolveAfter1Second(),
+  ]);
+  // 2. Log the results together
+  console.log(results[0]);
+  console.log(results[1]);
+
+  console.log("== concurrent1 done ==");
+}
+
+async function concurrent2() {
+  console.log("== concurrent2 starts ==");
+
+  // 1. Start two timers concurrently, log immediately after each one is done
+  await Promise.all([
+    (async () => console.log(await resolveAfter2Seconds()))(),
+    (async () => console.log(await resolveAfter1Second()))(),
+  ]);
+  console.log("== concurrent2 done ==");
+}
+
+sequentialStart(); // after 2 seconds, logs "slow", then after 1 more second, "fast"
+
+// wait above to finish
+setTimeout(sequentialWait, 4000); // after 2 seconds, logs "slow" and then "fast"
+
+// wait again
+setTimeout(concurrent1, 7000); // same as sequentialWait
+
+// wait again
+setTimeout(concurrent2, 10000); // after 1 second, logs "fast", then after 1 more second, "slow"
+
+
+ // -------------
+
+
+
+ 
