@@ -613,3 +613,503 @@ cy.get('button.delete-btn').parent('td').parent('tr').should('have.attr', 'data-
 // 4. .parents() - Go UP the tree (find ALL matching ancestors).
 cy.get('button.delete-btn').parents('div').should('have.class', 'container');
 
+
+// Advanced Cypress
+
+// ---21.    What are Shadow DOM elements, and how can you select them in Cypress?
+
+// <!DOCTYPE html>
+// <html lang="en">
+// <head>
+//   <title>Shadow DOM Example</title>
+// </head>
+// <body>
+
+//   <h1>User Profiles</h1>
+
+//   <!-- এটি হলো আমাদের হোস্ট এলিমেন্ট -->
+//   <user-card></user-card>
+
+//   <script>
+//     // একটি কাস্টম এলিমেন্ট তৈরি করা হচ্ছে
+//     class UserCard extends HTMLElement {
+//       constructor() {
+//         super();
+        
+//         // Shadow DOM তৈরি এবং হোস্ট এলিমেন্টের সাথে যুক্ত করা
+//         // 'mode: "open"' মানে হলো, জাভাস্ক্রিপ্ট দিয়ে এর ভেতরে প্রবেশ করা যাবে
+//         const shadowRoot = this.attachShadow({ mode: 'open' });
+
+//         // Shadow DOM-এর ভেতরের HTML এবং CSS
+//         shadowRoot.innerHTML = `
+//           <style>
+//             /* এই স্টাইলগুলো শুধু এই user-card-এর ভেতরেই কাজ করবে */
+//             .card {
+//               border: 1px solid #ccc;
+//               padding: 16px;
+//               border-radius: 8px;
+//               width: 250px;
+//             }
+//             .card h3 {
+//               margin: 0 0 10px 0;
+//               color: #333;
+//             }
+//             .card button {
+//               background-color: #007bff;
+//               color: white;
+//               border: none;
+//               padding: 8px 12px;
+//               border-radius: 4px;
+//               cursor: pointer;
+//             }
+//           </style>
+
+//           <div class="card">
+//             <h3>Jane Doe</h3>
+//             <p>Email: jane.doe@example.com</p>
+//             <button id="details-btn">View Details</button>
+//           </div>
+//         `;
+//       }
+//     }
+
+//     // ব্রাউজারকে আমাদের নতুন ট্যাগ 'user-card' সম্পর্কে জানানো হচ্ছে
+//     customElements.define('user-card', UserCard);
+//   </script>
+
+// </body>
+// </html>
+
+// 1. Without Enabled Shadow DOM Support (default behavior)
+
+cy.visit('index.html');
+
+cy.get('user-card')
+
+  .shadow()
+
+  .find('#details-btn')
+
+  .click();
+
+cy.get('user-card')
+  .shadow()
+  .find('#details-btn')
+  .should('have.text', 'View Details');
+
+
+// 2. With Enabled Shadow DOM Support
+
+// cypress.config.js
+// const { defineConfig } = require('cypress');
+
+// module.exports = defineConfig({
+// e2e: {
+// includeShadowDom: true,
+// setupNodeEvents(on, config) {
+// // ...
+// },
+// },
+// });
+
+cy.visit('index.html');
+
+cy.get('#details-btn').click();
+
+cy.get('#details-btn').should('have.text', 'View Details');
+
+// ---22.    How can you extend Cypress with custom commands for reusable selectors?
+
+// --- Scenario 1: A Single Command for Login ---
+
+// In cypress/support/commands.js
+/**
+ * Logs in a user with specified credentials.
+ * If no credentials are provided, it uses default values from cypress environment variables.
+ * @param {string} email - The user's email.
+ * @param {string} password - The user's password.
+ */
+Cypress.Commands.add('login', (email, password) => {
+  const userEmail = email || Cypress.env('userEmail');
+  const userPassword = password || Cypress.env('userPassword');
+
+  cy.session([userEmail, userPassword], () => {
+    cy.visit('/login');
+    cy.get('[data-cy="email"]').type(userEmail);
+    cy.get('[data-cy="password"]').type(userPassword);
+    cy.get('[data-cy="submit"]').click();
+    cy.url().should('include', '/dashboard');
+  });
+});
+
+/* 
+// cypress.config.js
+module.exports = defineConfig({
+  e2e: { // ... 
+  },
+  env: {
+    userEmail: 'siam@example.com',
+    userPassword: 'pass'
+  }
+});
+*/
+
+// cy.js
+  cy.login(); // Login with default user credentials
+  cy.visit('/profile');
+  cy.get('.profile-name').should('be.visible');
+
+// --- Scenario 2: Selecting a Specific Table Row ---
+
+// In cypress/support/commands.js
+
+Cypress.Commands.add('getTableRowWithText', (text) => {
+  return cy.contains('tr', text);
+});
+
+// cy.js
+it('should allow editing a specific user', () => {
+  cy.getTableRowWithText('Jane Doe').find('.edit-button').click();
+  cy.get('#edit-modal').should('be.visible');
+});
+
+it('should delete a user from the table', () => {
+  cy.getTableRowWithText('John Smith').find('.delete-button').click();
+  cy.getTableRowWithText('John Smith').should('not.exist');
+});
+
+
+// --- Scenario 3: Adding a Specific Product to the Cart ---
+
+Cypress.Commands.add('addProductToCart', (productName) => {
+  cy.contains('.product-card', productName)
+    .find('button.add-to-cart')
+    .click();
+});
+
+//cy.js
+it('should add a laptop and a mouse to the cart', () => {
+  cy.visit('/products');
+  cy.addProductToCart('Super-Fast Laptop');
+  cy.addProductToCart('Ergonomic Mouse');
+  cy.get('.cart-item-count').should('have.text', '2');
+});
+
+// --- Scenario 4: Creating Test Data via API ---
+
+Cypress.Commands.add('createUserViaApi', (userDetails) => {
+  cy.request({
+    method: 'POST',
+    url: '/api/v1/users', // Your application's API endpoint
+    body: userDetails,
+  });
+});
+
+// cy.js
+beforeEach(() => {
+  const user = {
+    name: 'Test User',
+    email: `test55@example.com`,
+    password: 'password123'
+  };
+  cy.createUserViaApi(user);
+  cy.login(user.email, user.password); // Reuse our login command
+});
+
+it('should be able to update the profile', () => {
+  cy.visit('/profile');
+  cy.get('[data-cy="profile-name-input"]').type('Updated Name');
+  cy.get('[data-cy="save-profile"]').click();
+  cy.contains('Profile updated successfully').should('be.visible');
+});
+
+
+//---- 23.    What is cy.xpath() used for, and when should it be preferred over CSS selectors?
+
+// 1: Complex Conditional Logic in a Single Query
+
+// The Cypress Way
+cy.contains('tr', 'Siam')
+  .filter(':contains("Inactive")') // Filter the results, this can be fragile
+  .find('button', 'Delete')
+  .click();
+
+// The XPath Way
+cy.xpath("//tr[.//td[text()='Siam'] and .//td[text()='Inactive']]//button[text()='Delete']")
+  .click();
+
+
+  // 2: Selecting an Element Based on a Non-Adjacent Sibling
+
+    // Type into an input field that follows a <label> with the text "User Email", but they are not direct siblings (e.g., separated by a <br> or a <div>).
+
+  // The Cypress Way - Brittle and structure-dependent but will fail
+cy.contains('label', 'User Email')
+  .parent() 
+  .find('input')
+  .type('test@example.com');
+
+  // The XPath Way 
+cy.xpath("//label[text()='User Email']/following-sibling::input[1]")
+  .type('test@example.com');
+
+  // 3: Traversing Up to a Specific Ancestor by Position
+
+  // The Cypress Way
+cy.get('button.confirm')
+  .parent()
+  .parent()
+  .should('have.attr', 'data-state', 'active');
+
+  // The XPath Way
+cy.xpath("//button[@class='confirm']/ancestor::*[@data-state='active'][1]")
+  .should('exist');
+
+// Or, to specifically get the grandparent:
+cy.xpath("//button[@class='confirm']/../..")
+  .should('have.attr', 'data-state', 'active');
+
+// ========================================================================
+// 24.    How can you make Cypress selectors more stable across UI or DOM changes?
+
+
+// 1. data-* Attributes for Testing
+
+cy.get('[data-cy="submit-button"]').click();
+
+// 2. Use Stable, Functional Attributes like 'name' or 'role'
+cy.get('[name="user_email"]').type('test@example.com');
+cy.get('[role="search"]').click();
+
+
+// 3. Use Text Content Wisely (Scoped to a Specific Area)
+
+/*
+  HTML might look like:
+  <div data-cy="user-profile-modal">
+    <button>Save</button>
+  </div>
+  <div data-cy="account-settings-modal">
+    <button>Save</button>
+  </div>
+*/
+
+cy.get('[data-cy="user-profile-modal"]').contains('Save').click();
+
+
+// 4. Combine Selectors for Uniqueness
+
+cy.get('button.btn.btn-confirm[type="submit"]').click();
+
+
+// 5. Rely on Structural Relationships (Use as a Last Resort)
+
+/*
+  HTML might look like:
+  <div class="form-group">
+    <label>Email Address</label>
+    <input id="dynamic-id-xyz123">
+  </div>
+*/
+
+// We find the stable label first
+cy.contains('label', 'Email Address').next('input').type('my@email.com');
+
+// ========================================================================
+// 25.    How do you select elements dynamically generated after an API call?
+
+// Default behavior: Cypress automatically waits for elements to appear.
+cy.get('[data-cy="load-users-button"]').click();
+cy.get('[data-cy="user-list-item"]')
+  .should('have.length.greaterThan', 0);
+
+
+// use Timeout if the response is slow
+cy.get('[data-cy="load-reports-button"]').click();
+cy.get('[data-cy="generated-report"]', { timeout: 10000 })
+  .should('be.visible');
+
+
+// wait for the network request to complete.
+cy.intercept('GET', '/api/users').as('getUsers');
+cy.get('[data-cy="load-users-button"]').click();
+
+// Explicitly wait for the API call to finish before asserting.
+cy.wait('@getUsers');
+
+cy.get('[data-cy="user-list-item"]')
+  .first()
+  .should('contain.text', 'Jane Doe');
+
+// ========================================================================
+// 26.    When would you use { force: true } in a Cypress command, and why should you avoid it if possible?
+
+// Interacting with hidden file inputs which is not visible but needed to be tested
+cy.get('input[type="file"]').selectFile('path/to/image.png', { force: true });
+
+
+// Forcing a click on an element covered by a loader.
+// This is where we should avoid it if possible because it doesn't test if the app is actually ready for user interaction.
+cy.get('.submit-button').click({ force: true });
+
+// in this case, it's better to wait for the loader to disappear first.
+cy.get('.loading-spinner').should('not.exist');
+cy.get('.submit-button').click();
+
+
+// Forcing a click on a hidden dropdown menu item.
+// This is where we should avoid it if possible because it bypasses the actual user workflow needed to reveal the element.
+cy.get('.menu-item-profile').click({ force: true });
+
+// In this caseperform the action that makes the element visible.
+cy.get('.menu-button').click();
+cy.get('.menu-item-profile').click();
+
+// ========================================================================
+// 28.    What are common pitfalls of using index-based selectors like .eq()?
+/*
+  <ul>
+    <li>Apple</li>
+    <li>Banana</li>
+    <li>Orange</li>
+  </ul>
+*/
+// The test passes because "Orange" is at index 2.
+cy.get('li').eq(2).should('contain.text', 'Orange');
+
+
+// Pitfall 1: The test breaks if a new item is added to the list.
+// If "Grape" is added at the beginning, .eq(2) now incorrectly points to "Banana".
+/*
+  HTML becomes:
+  <ul>
+    <li>Grape</li>
+    <li>Apple</li>
+    <li>Banana</li>
+    <li>Orange</li>
+  </ul>
+*/
+cy.get('li').eq(2).click(); // This now clicks "Banana" instead of "Orange".
+
+
+// Pitfall 2: The test breaks if an item is removed.
+// If "Apple" is removed, .eq(1) now incorrectly points to "Orange".
+/*
+  HTML becomes:
+  <ul>
+    <li>Banana</li>
+    <li>Orange</li>
+  </ul>
+*/
+cy.get('li').eq(1).click(); // This now clicks "Orange" instead of "Banana".
+
+
+// Pitfall 3: Lack of readability and maintainability.
+// It's unclear what this selector is targeting without looking at the UI.
+cy.get('li').eq(2).click();
+
+
+// Pitfall 4: The test is flaky with dynamically filtered lists.
+// Initially, .eq(1) points to the "Admin" user.
+cy.get('.user-row').eq(1).should('contain.text', 'Admin User');
+
+// A user filters the list to show only "Guest" users.
+cy.get('#filter-by-guest').click();
+
+/*
+  The list now only contains:
+  <li class="user-row">Guest User 1</li>
+  <li class="user-row">Guest User 2</li>
+*/
+
+// The same selector, .eq(1), now points to a completely different user.
+cy.get('.user-row').eq(1).should('contain.text', 'Guest User 2');
+
+// ========================================================================
+// 29.    How can Cypress chain multiple conditions to pinpoint a specific element (e.g., parent + text + attribute)?
+
+// Scenario: Clicking a specific link in a data table.
+/*
+  HTML Context:
+  <table>
+    <tbody>
+      <!-- This is the row we want -->
+      <tr data-cy="user-row-jane">
+        <td>Jane Doe</td>
+        <td><span class="status-active">Active</span></td>
+        <td><a href="/users/123" data-action="view">View Details</a></td>
+      </tr>
+      <!-- This is a similar row we want to ignore -->
+      <tr data-cy="user-row-john">
+        <td>John Doe</td>
+        <td><span class="status-pending">Pending</span></td>
+        <td><a href="/users/456" data-action="view">View Details</a></td>
+      </tr>
+    </tbody>
+  </table>
+*/
+
+
+// wrong way
+cy.contains('View Details').click();
+
+
+// --- The Chained (Specific) Approach ---
+// This combines parent, text, and attribute conditions to find the exact element.
+cy.contains('tr', 'Jane Doe')         
+  .filter(':contains("Active")')
+  .find('a[data-action="view"]')
+  .click();
+
+
+// Scenario: Typing into a specific, visible input field within a form section.
+/*
+  HTML Context:
+  <div data-cy="notifications-section">
+    <h3>Notifications</h3>
+    <input type="email" name="notification_email" style="display: none;"> <!-- A hidden input to ignore -->
+    <input type="email" name="notification_email"> <!-- The visible input we want -->
+  </div>
+*/
+
+
+// --- The Chained (Specific) Approach ---
+cy.get('[data-cy="notifications-section"]')    
+  .find('input[name="notification_email"]')
+  .should('be.visible')
+  .type('new@email.com');
+
+// ========================================================================
+// 29.    How can Cypress chain multiple conditions to pinpoint a specific element (e.g., parent + text + attribute)?
+
+// Strategy 1: Anchor to unique, user-visible text.
+// Find a stable label, then traverse to the related unstable input.
+cy.contains('label', 'User Email')
+  .parent()
+  .find('input')
+  .type('test@example.com');
+
+
+// Strategy 2: Identify an element by its unique structural combination.
+// Find the card that has both a title and an image, then find its button.
+cy.get('.user-card')
+  .find('h3')
+  .contains('John Doe')
+  .closest('.user-card')
+  .find('button')
+  .click();
+
+
+// Strategy 3: Use partial matching for dynamic attributes.
+// e.g., id="ember-view-123-submit-button"
+cy.get('[id^="ember-view-"][id$="-submit-button"]').click();
+
+
+// Strategy 4: As a last resort, combine position, text, and structure.
+cy.get('tbody tr')
+  .eq(1) // Get the second row
+  .find('td')
+  .contains('Pending')
+  .closest('tr')
+  .find('button')
+  .click();
