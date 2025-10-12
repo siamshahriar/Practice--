@@ -1113,3 +1113,193 @@ cy.get('tbody tr')
   .closest('tr')
   .find('button')
   .click();
+
+
+ //xPath Practice
+
+  //Beginner Livel
+
+// Example HTML context:
+/*
+<html>
+    <head><title>XPath Test Page</title></head>
+    <body>
+        <div id="main-container">
+            <h1>User Registration</h1>
+            <p>Please fill out the form below to create an account.</p>
+
+            <form class="user-form">
+                <div class="form-group error">
+                    <label>Username</label>
+                    <input name="username" placeholder="Choose a username" type="text">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input name="email" placeholder="Enter your email" type="email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input name="password" class="input-field password-field" type="password">
+                </div>
+                <button type="submit" id="submit-btn" class="btn btn-primary">Create Account</button>
+                <button type="reset" class="btn">Reset Form</button>
+            </form>
+
+            <footer>
+                <a href="/login">Already have an account? Log In</a>
+            </footer>
+        </div>
+    </body>
+    </html>
+*/
+
+  // Example 1: Absolute Path.
+    cy.xpath('/html/body/div/form').should('have.class', 'user-form');
+
+    // Example 2: Relative Path with Attribute (The most common way).
+    cy.xpath("//button[@id='submit-btn']").should('contain', 'Create Account');
+
+    // Example 3: Find element by exact text (text()).
+    cy.xpath("//label[text()='Password']").should('be.visible');
+
+    // Example 4: Find element by partial text (contains(text(), ...)).
+    cy.xpath("//a[contains(text(), 'Log In')]").should('have.attr', 'href', '/login');
+
+    // Example 5: Find element by partial attribute value (contains(@attribute, ...)).
+    cy.xpath("//input[contains(@class, 'password-field')]").should('have.attr', 'type', 'password');
+
+    // Example 6: Combine conditions using 'and'.
+    cy.xpath("//button[@type='submit' and contains(@class, 'btn-primary')]").should('have.id', 'submit-btn');
+
+    // Example 7: Combine conditions using 'or'.
+    cy.xpath("//input[@placeholder='Choose a username' or @name='username']").should('have.attr', 'type', 'text');
+
+    // Example 8: Traverse up to a parent element (parent:: or /..).
+    cy.xpath("//label[text()='Email Address']/parent::div").should('have.class', 'form-group');
+
+    // Example 9: Find element by any attribute value using a wildcard (@*).
+    cy.xpath("//input[@*='Enter your email']").should('have.attr', 'name', 'email');
+
+    // Example 10: Target a specific child element within a parent.
+    cy.xpath("//form[@class='user-form']/button[text()='Reset Form']").should('have.class', 'btn');
+
+    //Parent Div Examples
+
+    //Example HTML Context
+
+/* 
+<main id="product-details">
+    <div class="product-info">
+        <h2>SuperWidget 5000</h2>
+        <p>The best widget on the market.</p>
+        <span class="price">$99.99</span>
+        <button class="add-to-cart">Add to Cart</button>
+    </div>
+</main>
+
+<aside id="recommendations">
+    <h3>You might also like...</h3>
+    <div class="product-info">
+        <h2>BasicWidget</h2>
+        <span class="price">$19.99</span>
+        <button class="add-to-cart">Add to Cart</button>
+    </div>
+</aside>
+*/
+
+cy.xpath("//h2[text()='SuperWidget 5000']/parent::div//button[text()='Add to Cart']").click();
+
+// Advanced Practice
+
+// Example HTML Context
+/*
+<html>
+        <head><title>User Management Table</title></head>
+        <body>
+            <div class="user-management">
+                <h2>User List</h2>
+                <table id="user-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Alice Smith</td>
+                            <td>alice@example.com</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>
+                                <button class="btn edit">Edit</button>
+                                <button class="btn delete">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Bob Johnson</td>
+                            <td>bob@example.com</td>
+                            <td><span class="status inactive">Inactive</span></td>
+                            <td>
+                                <button class="btn edit">Edit</button>
+                                <button class="btn delete">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Charlie Brown</td>
+                            <td>charlie@example.com</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>
+                                <button class="btn edit">Edit</button>
+                                <button class="btn delete">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </body>
+    </html>
+*/
+
+    // 1. Find a following sibling element.
+    cy.xpath("//td[text()='Bob Johnson']/following-sibling::td[1]")
+      .should('have.text', 'bob@example.com');
+
+    // 2. Perform an action relative to another element.
+    cy.xpath("//td[text()='charlie@example.com']/following-sibling::td/button[text()='Delete']")
+      .should('be.visible');
+
+    // 3. Use a combination of parent and descendant axes.
+    cy.xpath("//td[text()='alice@example.com']/parent::tr//button[text()='Edit']")
+      .should('be.visible');
+
+    // 4. Find a preceding sibling element.
+    cy.xpath("//span[text()='Inactive']/ancestor::td/preceding-sibling::td[2]")
+      .should('have.text', 'Bob Johnson');
+
+    // 5. Find an element by its index (position).
+    cy.xpath("//table[@id='user-table']/tbody/tr[2]/td[2]")
+      .should('have.text', 'bob@example.com');
+
+    // 6. Find the last element in a group using last().
+    cy.xpath("//tbody/tr[last()]/td[1]")
+      .should('have.text', 'Charlie Brown');
+
+    // 7. Filter elements using not().
+    cy.xpath("//tr[not(.//span[text()='Inactive'])]")
+      .first()
+      .should('contain', 'Alice Smith');
+
+    // 8. Traverse up multiple levels using ancestor.
+    cy.xpath("(//button[text()='Edit'])[1]/ancestor::table")
+      .should('have.id', 'user-table');
+
+    // 9. Navigate complex relationships: parent then last child.
+    cy.xpath("//td[text()='Bob Johnson']/parent::tr/td[last()]/button[@class='btn delete']")
+      .should('be.visible');
+
+    // 10. Select a parent based on its child's content.
+    cy.xpath("//tr[.//td[text()='bob@example.com']]")
+      .should('contain', 'Bob Johnson')
+      .and('contain', 'Inactive');
