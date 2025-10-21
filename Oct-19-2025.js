@@ -427,3 +427,346 @@ document.getElementById('advancedButton')?.addEventListener('click', async () =>
 */
 
 
+// Javascript Data structures
+
+// Object literals
+
+// Object Methods Examples
+// ===============================================
+
+// === Object.keys() Examples ===
+
+// Object.keys() - returns an array of object's own enumerable property names
+const person = {
+    name: 'John',
+    age: 30,
+    city: 'New York',
+    occupation: 'Developer'
+};
+
+const keys = Object.keys(person);
+console.log("Object.keys(person):", keys); 
+// ["name", "age", "city", "occupation"]
+
+// With array
+const arr = ['a', 'b', 'c'];
+console.log("Object.keys(arr):", Object.keys(arr)); 
+// ["0", "1", "2"]
+
+// With string
+console.log("Object.keys('hello'):", Object.keys('hello')); 
+// ["0", "1", "2", "3", "4"]
+
+
+// ===============================================
+
+// === Object.values() Examples ===
+
+// Object.values() - returns an array of object's own enumerable property values
+const values = Object.values(person);
+console.log("Object.values(person):", values); 
+// ["John", 30, "New York", "Developer"]
+
+const scores = { math: 95, science: 87, english: 92 };
+console.log("Object.values(scores):", Object.values(scores)); 
+// [95, 87, 92]
+
+// With array
+console.log("Object.values(['a', 'b', 'c']):", Object.values(['a', 'b', 'c'])); 
+// ["a", "b", "c"]
+
+
+// ===============================================
+
+// === Object.entries() Examples ===
+
+// Object.entries() - returns an array of [key, value] pairs
+const entries = Object.entries(person);
+console.log("Object.entries(person):", entries); 
+// [["name", "John"], ["age", 30], ["city", "New York"], ["occupation", "Developer"]]
+
+// Convert back to object using Object.fromEntries()
+const reconstructed = Object.fromEntries(entries);
+console.log("Reconstructed object:", reconstructed); 
+// {name: "John", age: 30, city: "New York", occupation: "Developer"}
+
+// Useful for transformation
+const doubled = Object.fromEntries(
+    Object.entries(scores).map(([key, value]) => [key, value * 2])
+);
+console.log("Doubled scores:", doubled); 
+// {math: 190, science: 174, english: 184}
+
+
+// ===============================================
+
+// === Object.defineProperty() Examples ===
+
+// Object.defineProperty() - defines a new property or modifies an existing property
+const student = {};
+
+// Define property with descriptors
+Object.defineProperty(student, 'name', {
+    value: 'Alice',
+    writable: true,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(student, 'id', {
+    value: 'STU001',
+    writable: false,
+    enumerable: false,
+    configurable: false
+});
+
+console.log("student.name:", student.name); 
+// "Alice"
+console.log("student.id:", student.id); 
+// "STU001"
+console.log("Object.keys(student):", Object.keys(student)); 
+// ["name"] (id is not enumerable)
+
+// Define getter/setter
+let _grade = 0;
+Object.defineProperty(student, 'grade', {
+    get: function() { return _grade; },
+    set: function(value) {
+        if (value >= 0 && value <= 100) {
+            _grade = value;
+        } else {
+            throw new Error('Grade must be between 0 and 100');
+        }
+    },
+    enumerable: true
+});
+
+student.grade = 85;
+console.log("student.grade:", student.grade); 
+// 85
+
+
+// ===============================================
+
+// === Object.getOwnPropertyNames() Examples ===
+
+// Object.getOwnPropertyNames() - returns all own properties (enumerable and non-enumerable)
+const propNames = Object.getOwnPropertyNames(student);
+console.log("Object.getOwnPropertyNames(student):", propNames); 
+// ["name", "id", "grade"] (includes non-enumerable 'id')
+
+// Compare with Object.keys()
+console.log("Object.keys(student):", Object.keys(student)); 
+// ["name", "grade"] (only enumerable)
+
+// Built-in objects
+console.log("Array.prototype properties:", Object.getOwnPropertyNames(Array.prototype).slice(0, 10)); 
+// ["length", "constructor", "concat", "copyWithin", "fill", "find", "findIndex", "lastIndexOf", "pop", "push"]
+
+
+// ===============================================
+
+// === Object.getOwnPropertySymbols() Examples ===
+
+// Object.getOwnPropertySymbols() - returns array of symbol properties
+const sym1 = Symbol('description1');
+const sym2 = Symbol('description2');
+
+const objWithSymbols = {
+    normalProp: 'value',
+    [sym1]: 'symbol value 1',
+    [sym2]: 'symbol value 2'
+};
+
+console.log("Object.keys(objWithSymbols):", Object.keys(objWithSymbols)); 
+// ["normalProp"] (symbols are not included)
+
+const symbols = Object.getOwnPropertySymbols(objWithSymbols);
+console.log("Object.getOwnPropertySymbols(objWithSymbols):", symbols); 
+// [Symbol(description1), Symbol(description2)]
+
+console.log("Symbol values:", symbols.map(sym => objWithSymbols[sym])); 
+// ["symbol value 1", "symbol value 2"]
+
+
+// ===============================================
+
+// === Object.getOwnPropertyDescriptors() Examples ===
+
+// Object.getOwnPropertyDescriptors() - returns all property descriptors
+const descriptors = Object.getOwnPropertyDescriptors(student);
+console.log("Object.getOwnPropertyDescriptors(student):", descriptors);
+/*
+{
+  name: {value: "Alice", writable: true, enumerable: true, configurable: true},
+  id: {value: "STU001", writable: false, enumerable: false, configurable: false},
+  grade: {get: ƒ, set: ƒ, enumerable: true, configurable: false}
+}
+*/
+
+// Useful for cloning objects with exact property descriptors
+const clonedStudent = Object.defineProperties({}, descriptors);
+console.log("Cloned student:", clonedStudent); 
+// Same properties and descriptors as original
+
+
+// ===============================================
+
+// === Reflect.ownKeys() Examples ===
+
+// Reflect.ownKeys() - returns all own property keys (strings and symbols)
+const allKeys = Reflect.ownKeys(objWithSymbols);
+console.log("Reflect.ownKeys(objWithSymbols):", allKeys); 
+// ["normalProp", Symbol(description1), Symbol(description2)]
+
+// Compare different methods
+console.log("Object.keys():", Object.keys(objWithSymbols)); 
+// ["normalProp"]
+console.log("Object.getOwnPropertyNames():", Object.getOwnPropertyNames(objWithSymbols)); 
+// ["normalProp"]
+console.log("Object.getOwnPropertySymbols():", Object.getOwnPropertySymbols(objWithSymbols)); 
+// [Symbol(description1), Symbol(description2)]
+console.log("Reflect.ownKeys():", Reflect.ownKeys(objWithSymbols)); 
+// ["normalProp", Symbol(description1), Symbol(description2)]
+
+
+// ===============================================
+
+// === Object.assign() Examples ===
+
+// Object.assign() - copies enumerable own properties from source to target
+const target = { a: 1, b: 2 };
+const source1 = { b: 3, c: 4 };
+const source2 = { c: 5, d: 6 };
+
+const result = Object.assign(target, source1, source2);
+console.log("Object.assign result:", result); 
+// {a: 1, b: 3, c: 5, d: 6}
+console.log("Target modified:", target); 
+// {a: 1, b: 3, c: 5, d: 6} (target is modified)
+
+// Cloning objects (shallow copy)
+const original = { name: 'John', address: { city: 'NYC', zip: '10001' } };
+const clone = Object.assign({}, original);
+console.log("Cloned object:", clone); 
+// {name: "John", address: {city: "NYC", zip: "10001"}}
+
+// Merging with default values
+const defaults = { theme: 'light', fontSize: 14, autoSave: true };
+const userPrefs = { theme: 'dark', fontSize: 16 };
+const finalPrefs = Object.assign({}, defaults, userPrefs);
+console.log("Final preferences:", finalPrefs); 
+// {theme: "dark", fontSize: 16, autoSave: true}
+
+
+// ===============================================
+
+// === Object Spread (...) Examples ===
+
+// Object spread - modern alternative to Object.assign()
+const obj1 = { a: 1, b: 2 };
+const obj2 = { b: 3, c: 4 };
+const obj3 = { c: 5, d: 6 };
+
+// Spread syntax
+const spreadResult = { ...obj1, ...obj2, ...obj3 };
+console.log("Spread result:", spreadResult); 
+// {a: 1, b: 3, c: 5, d: 6}
+
+// Adding new properties
+const enhanced = { ...person, salary: 75000, department: 'IT' };
+console.log("Enhanced person:", enhanced); 
+// {name: "John", age: 30, city: "New York", occupation: "Developer", salary: 75000, department: "IT"}
+
+// Overriding properties
+const updated = { ...person, age: 31, city: 'San Francisco' };
+console.log("Updated person:", updated); 
+// {name: "John", age: 31, city: "San Francisco", occupation: "Developer"}
+
+// Conditional spreading
+const includeExtra = true;
+const conditional = {
+    name: 'Test',
+    ...(includeExtra && { extra: 'value' })
+};
+console.log("Conditional spread:", conditional); 
+// {name: "Test", extra: "value"}
+
+// Nested object spreading (shallow)
+const profile = {
+    user: { ...person },
+    settings: { ...defaults },
+    timestamp: new Date().toISOString()
+};
+console.log("Profile with spread:", profile);
+/*
+{
+  user: {name: "John", age: 30, city: "New York", occupation: "Developer"},
+  settings: {theme: "light", fontSize: 14, autoSave: true},
+  timestamp: "2025-10-22T..."
+}
+*/
+
+// Array spreading in objects
+const arrayData = ['first', 'second', 'third'];
+const objFromArray = { ...arrayData };
+console.log("Object from array spread:", objFromArray); 
+// {0: "first", 1: "second", 2: "third"}
+
+// Function parameters with spread
+function createUser({ name, email, ...otherProps }) {
+    return {
+        id: Math.random().toString(36).substr(2, 9),
+        name,
+        email,
+        createdAt: new Date(),
+        ...otherProps
+    };
+}
+
+const newUser = createUser({
+    name: 'Jane',
+    email: 'jane@example.com',
+    age: 28,
+    department: 'Marketing'
+});
+console.log("Created user with spread:", newUser);
+/*
+{
+  id: "...",
+  name: "Jane",
+  email: "jane@example.com",
+  createdAt: Date,
+  age: 28,
+  department: "Marketing"
+}
+*/
+
+// === Comparison Summary ===
+
+const testObj = {
+    enumProp: 'enumerable',
+    [Symbol('sym')]: 'symbol value'
+};
+
+Object.defineProperty(testObj, 'nonEnumProp', {
+    value: 'non-enumerable',
+    enumerable: false
+});
+
+console.log("Test object methods comparison:");
+console.log("Object.keys():", Object.keys(testObj)); 
+// ["enumProp"]
+console.log("Object.values():", Object.values(testObj)); 
+// ["enumerable"]
+console.log("Object.entries():", Object.entries(testObj)); 
+// [["enumProp", "enumerable"]]
+console.log("Object.getOwnPropertyNames():", Object.getOwnPropertyNames(testObj)); 
+// ["enumProp", "nonEnumProp"]
+console.log("Object.getOwnPropertySymbols():", Object.getOwnPropertySymbols(testObj)); 
+// [Symbol(sym)]
+console.log("Reflect.ownKeys():", Reflect.ownKeys(testObj)); 
+// ["enumProp", "nonEnumProp", Symbol(sym)]
+
+console.log("Object methods examples completed!"); 
+
