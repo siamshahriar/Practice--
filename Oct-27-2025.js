@@ -154,4 +154,202 @@ child.greet(); // Output: "Hello!"
 console.log(child.name); // Output: "Siam" (own property)
 console.log(child.greet); // Output: [Function: greet] (inherited from parent)
 
+// ============================================================
+
+// CLOSURES
+
+// 1. LEXICAL SCOPING - BASIC EXAMPLE
+
+function init() {
+  var name = "Mozilla";
+  function displayName() {
+    console.log(name);
+  }
+  displayName();
+}
+init(); // Output: Mozilla
+
+// 2. SCOPING WITH LET AND CONST
+
+// Example with var (function scope)
+if (Math.random() > 0.5) {
+  var x = 1;
+} else {
+  var x = 2;
+}
+console.log(x); // Works - x is accessible (function/global scoped)
+
+// Example with const (block scope)
+if (Math.random() > 0.5) {
+  const y = 1;
+} else {
+  const y = 2;
+}
+// console.log(y); // ReferenceError: y is not defined
+
+// 3. CLOSURE - BASIC EXAMPLE
+
+function makeFunc() {
+  const name = "Mozilla";
+  function displayName() {
+    console.log(name);
+  }
+  return displayName;
+}
+
+const myFunc = makeFunc();
+myFunc(); // Output: Mozilla
+// Even though makeFunc() finished executing, displayName() still has access to 'name'
+
+// 4. MAKEADDER FUNCTION - FUNCTION FACTORY
+
+function makeAdder(x) {
+  return function (y) {
+    return x + y;
+  };
+}
+
+const add5 = makeAdder(5);
+const add10 = makeAdder(10);
+
+console.log(add5(2)); // 7 (5 + 2)
+console.log(add10(2)); // 12 (10 + 2)
+console.log(add5(10)); // 15 (5 + 10)
+console.log(add10(20)); // 30 (10 + 20)
+
+// 5. PRACTICAL CLOSURES - MULTIPLIER FACTORY
+
+function makeMultiplier(multiplier) {
+  return function (number) {
+    return number * multiplier;
+  };
+}
+
+const double = makeMultiplier(2);
+const triple = makeMultiplier(3);
+const quadruple = makeMultiplier(4);
+
+console.log(double(5)); // 10
+console.log(triple(5)); // 15
+console.log(quadruple(5)); // 20
+
+// 6. EMULATING PRIVATE METHODS WITH CLOSURES - MODULE PATTERN
+
+const counter = (function () {
+  let privateCounter = 0;
+  function changeBy(val) {
+    privateCounter += val;
+  }
+
+  return {
+    increment() {
+      changeBy(1);
+    },
+    decrement() {
+      changeBy(-1);
+    },
+    value() {
+      return privateCounter;
+    },
+  };
+})();
+
+console.log(counter.value()); // 0
+counter.increment();
+counter.increment();
+console.log(counter.value()); // 2
+counter.decrement();
+console.log(counter.value()); // 1
+
+// privateCounter and changeBy are private - can't be accessed directly
+// console.log(counter.privateCounter); // undefined
+// counter.changeBy(10); // Error
+
+// 7. MULTIPLE INDEPENDENT COUNTERS
+
+function makeCounter() {
+  let privateCounter = 0;
+  function changeBy(val) {
+    privateCounter += val;
+  }
+  return {
+    increment() {
+      changeBy(1);
+    },
+    decrement() {
+      changeBy(-1);
+    },
+    value() {
+      return privateCounter;
+    },
+  };
+}
+
+const counter1 = makeCounter();
+const counter2 = makeCounter();
+
+console.log(counter1.value()); // 0
+counter1.increment();
+counter1.increment();
+console.log(counter1.value()); // 2
+
+console.log(counter2.value()); // 0 (independent from counter1)
+counter2.increment();
+console.log(counter2.value()); // 1
+
+counter1.decrement();
+console.log(counter1.value()); // 1
+console.log(counter2.value()); // 1 (still independent)
+
+// 8. CLOSURE SCOPE CHAIN
+
+// global scope (Currying)
+const e = 10;
+function sum(a) {
+  return function (b) {
+    return function (c) {
+      // outer functions scope
+      return function (d) {
+        // local scope
+        return a + b + c + d + e;
+      };
+    };
+  };
+}
+
+console.log(sum(1)(2)(3)(4)); // 20 (1 + 2 + 3 + 4 + 10)
+
+// Same example with named functions
+function sum2(a) {
+  return function addB(b) {
+    return function addC(c) {
+      return function addD(d) {
+        return a + b + c + d + e;
+      };
+    };
+  };
+}
+
+const step1 = sum2(1);
+const step2 = step1(2);
+const step3 = step2(3);
+const result = step3(4);
+console.log(result); // 20
+
+// 9. CLOSURES WITH BLOCK SCOPE
+
+function outer() {
+  let getY;
+  {
+    const y = 6;
+    getY = () => y;
+  }
+  console.log(typeof y); // undefined (y is block-scoped)
+  console.log(getY()); // 6 (closure captured y before block ended)
+}
+
+outer(); // Outputs: undefined, 6
+
+
+
 
