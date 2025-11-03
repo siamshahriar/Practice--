@@ -350,6 +350,153 @@ function outer() {
 
 outer(); // Outputs: undefined, 6
 
+// 10. CREATING CLOSURES IN LOOPS - THE PROBLEM (with var)
 
+function problemExample() {
+  var callbacks = [];
+
+  for (var i = 0; i < 3; i++) {
+    callbacks.push(function () {
+      console.log(i);
+    });
+  }
+
+  console.log("Problem with var:");
+  callbacks[0](); // 3 (not 0!)
+  callbacks[1](); // 3 (not 1!)
+  callbacks[2](); // 3 (not 2!)
+  // All closures share the same 'i' which is 3 after the loop
+}
+
+problemExample();
+
+// 11. SOLUTION 1 - USING IIFE (IMMEDIATELY INVOKED FUNCTION EXPRESSION)
+
+function solution1() {
+  var callbacks = [];
+
+  for (var i = 0; i < 3; i++) {
+    (function (index) {
+      callbacks.push(function () {
+        console.log(index);
+      });
+    })(i);
+  }
+
+  console.log("Solution 1 - IIFE:");
+  callbacks[0](); // 0
+  callbacks[1](); // 1
+  callbacks[2](); // 2
+}
+
+solution1();
+
+// 12. SOLUTION 2 - USING LET (BLOCK SCOPE)
+
+function solution2() {
+  var callbacks = [];
+
+  for (let i = 0; i < 3; i++) {
+    // Using 'let' instead of 'var'
+    callbacks.push(function () {
+      console.log(i);
+    });
+  }
+
+  console.log("Solution 2 - let:");
+  callbacks[0](); // 0
+  callbacks[1](); // 1
+  callbacks[2](); // 2
+}
+
+solution2();
+
+// 13. SOLUTION 3 - USING HELPER FUNCTION
+
+function solution3() {
+  var callbacks = [];
+
+  function makeCallback(value) {
+    return function () {
+      console.log(value);
+    };
+  }
+
+  for (var i = 0; i < 3; i++) {
+    callbacks.push(makeCallback(i));
+  }
+
+  console.log("Solution 3 - Helper function:");
+  callbacks[0](); // 0
+  callbacks[1](); // 1
+  callbacks[2](); // 2
+}
+
+solution3();
+
+// 14. PRACTICAL EXAMPLE - CREATING GREETING FUNCTIONS
+
+function createGreeter(greeting) {
+  return function (name) {
+    console.log(`${greeting}, ${name}!`);
+  };
+}
+
+const sayHello = createGreeter("Hello");
+const sayHi = createGreeter("Hi");
+const sayGoodMorning = createGreeter("Good morning");
+
+sayHello("Alice"); // Hello, Alice!
+sayHi("Bob"); // Hi, Bob!
+sayGoodMorning("Charlie"); // Good morning, Charlie!
+
+// 15. PRACTICAL EXAMPLE - CREATING FORMATTERS
+
+function createFormatter(prefix, suffix) {
+  return function (text) {
+    return `${prefix}${text}${suffix}`;
+  };
+}
+
+const addQuotes = createFormatter('"', '"');
+const addParentheses = createFormatter("(", ")");
+const addBrackets = createFormatter("[", "]");
+
+console.log(addQuotes("Hello")); // "Hello"
+console.log(addParentheses("Hello")); // (Hello)
+console.log(addBrackets("Hello")); // [Hello]
+
+// 16. PRACTICAL EXAMPLE - PRIVATE VARIABLES
+
+function createBankAccount(initialBalance) {
+  let balance = initialBalance;
+
+  return {
+    deposit(amount) {
+      if (amount > 0) {
+        balance += amount;
+        console.log(`Deposited: $${amount}. New balance: $${balance}`);
+      }
+    },
+    withdraw(amount) {
+      if (amount > 0 && amount <= balance) {
+        balance -= amount;
+        console.log(`Withdrawn: $${amount}. New balance: $${balance}`);
+      } else {
+        console.log("Insufficient funds");
+      }
+    },
+    getBalance() {
+      return balance;
+    },
+  };
+}
+
+const myAccount = createBankAccount(100);
+console.log(myAccount.getBalance()); // 100
+myAccount.deposit(50); // Deposited: $50. New balance: $150
+myAccount.withdraw(30); // Withdrawn: $30. New balance: $120
+console.log(myAccount.getBalance()); // 120
+// console.log(myAccount.balance); // undefined (balance is private)
 
 
